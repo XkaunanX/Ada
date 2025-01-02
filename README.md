@@ -12,6 +12,37 @@ Ada fue creado en respuesta a la necesidad de un lenguaje robusto y eficiente pa
 
 Ada es un lenguaje de **alto nivel**, diseñado para ofrecer un alto grado de abstracción mientras mantiene un control preciso sobre los recursos del sistema. Aunque proporciona características propias de lenguajes de bajo nivel, como el manejo explícito de memoria y la concurrencia, Ada se utiliza principalmente para el desarrollo de software en sistemas de tiempo real y de misión crítica.
 
+```ada
+with Ada.Text_IO; 
+with Ada.Storage_Elements;
+
+procedure Low_Level_Example is
+
+   -- Definicion de una variable para control de memoria
+   type Buffer is array (1 .. 100) of Integer;
+   B : Buffer;
+
+   procedure Initialize_Buffer is
+   begin
+      for I in B'Range loop
+         B(I) := I;
+      end loop;
+   end Initialize_Buffer;
+
+   -- Uso de recursos del sistema
+   procedure Control_Resources is
+      for I in B'Range loop
+         Ada.Text_IO.Put_Line("Elemento " & Integer'Image(B(I)));
+      end loop;
+   end Control_Resources;
+
+begin
+   -- Inicializar y controlar el buffer
+   Initialize_Buffer;
+   Control_Resources;
+end Low_Level_Example;
+```
+
 ### Uso de punteros
 
 Ada maneja **punteros** de manera estricta a través de tipos específicos como los "access types". A diferencia de otros lenguajes como C, donde los punteros pueden ser utilizados de forma más flexible y peligrosa, Ada previene muchos errores comunes, como el uso de punteros nulos o colgantes. Los punteros son controlados por el compilador, lo que mejora la seguridad y la fiabilidad del programa.
@@ -22,6 +53,36 @@ Ada maneja **punteros** de manera estricta a través de tipos específicos como 
 - Control estricto del acceso a la memoria.
 - Garantiza la integridad de la memoria y evita corrupciones.
 
+```ada
+with Ada.Text_IO; 
+
+procedure Pointer_Example is
+
+   -- Definimos un tipo para los punteros
+   type Integer_Access is access Integer;
+
+   -- Declaramos un puntero
+   Ptr : Integer_Access;
+
+   -- Definimos una variable para ser referenciada
+   Value : Integer := 10;
+
+begin
+   -- Asignamos la dirección de Value al puntero
+   Ptr := Integer_Access'(Value);
+
+   -- Mostramos el valor referenciado por el puntero
+   Ada.Text_IO.Put_Line("Valor a traves del puntero: " & Integer'Image(Ptr.all));
+
+   -- Desreferenciamos el puntero y modificamos el valor
+   Ptr.all := 20;
+
+   -- Mostramos el valor actualizado
+   Ada.Text_IO.Put_Line("Valor actualizado: " & Integer'Image(Value));
+
+end Pointer_Example;
+ ```
+
 ### Paradigma y explicación del paradigma
 
 Ada es un lenguaje **multiparadigma** que soporta varios estilos de programación, tales como:
@@ -29,6 +90,73 @@ Ada es un lenguaje **multiparadigma** que soporta varios estilos de programació
 - **Programación estructurada:** El enfoque principal del lenguaje es la programación estructurada, donde el flujo del control se gestiona a través de secuencias de comandos bien definidas, evitando las ramas y saltos excesivos.
 - **Programación orientada a objetos:** Ada también soporta clases, herencia y polimorfismo, aunque de una manera menos dinámica que otros lenguajes orientados a objetos como Java o C++.
 - **Programación concurrente:** Ada sobresale en la programación concurrente, facilitando la creación de sistemas que requieren la ejecución simultánea de múltiples tareas sin comprometer la seguridad y el control sobre los recursos.
+
+Ejemplo paradigma estructurado:
+
+```ada
+with Ada.Text_IO; 
+
+procedure Structured_Programming is
+   X : Integer := 10;
+begin
+   -- Estructura de control condicional
+   if X > 5 then
+      Ada.Text_IO.Put_Line("X es mayor que 5");
+   else
+      Ada.Text_IO.Put_Line("X es menor o igual a 5");
+   end if;
+
+   -- Estructura de control de repetición
+   for I in 1..5 loop
+      Ada.Text_IO.Put_Line("Iteracion: " & Integer'Image(I));
+   end loop;
+
+end Structured_Programming;
+```
+
+Ejemplo paradigma POO:
+
+```ada
+with Ada.Text_IO; 
+with Ada.Finalization; 
+
+type Animal is tagged record
+   Name : String(1..20);
+end record;
+
+type Dog is new Animal with record
+   Breed : String(1..20);
+end record;
+
+procedure Object_Oriented is
+   Dog1 : Dog := (Name => "Rex", Breed => "Labrador");
+
+begin
+   Ada.Text_IO.Put_Line("Perro: " & Dog1.Name & " de raza " & Dog1.Breed);
+end Object_Oriented;
+```
+
+Ejemplo concurrencia:
+
+```ada
+with Ada.Text_IO;
+
+procedure Concurrent_Programming is
+   task type Printer;
+   task body Printer is
+   begin
+      for I in 1..5 loop
+         Ada.Text_IO.Put_Line("Tarea concurrente en ejecucion");
+      end loop;
+   end Printer;
+
+   T : Printer;
+begin
+   -- Ejecución de tareas concurrentes
+   delay 1.0; -- Simula una operación de espera
+   Ada.Text_IO.Put_Line("Tarea principal finalizada");
+end Concurrent_Programming;
+```
 
 ### Tipo de tipado
 
@@ -49,6 +177,16 @@ Ada es un **lenguaje compilado**, lo que significa que el código fuente es tran
 - **Rendimiento:** La traducción directa a código máquina permite una ejecución más rápida y controlada.
 - **Optimización:** El compilador puede optimizar el código durante la compilación para hacer un mejor uso de los recursos del sistema.
 - **Menor uso de recursos en tiempo de ejecución:** No requiere un intérprete ni un entorno de ejecución complejo.
+
+## Compilador de Ada: GNAT
+
+El compilador principal utilizado para Ada es **GNAT** (GNU NYU Ada Translator), que forma parte del proyecto GCC (GNU Compiler Collection).
+
+### ¿Como compilar un programa en ada?
+
+```bash
+gnatmake program.adb
+```
 
 ### Manejo de memoria
 
@@ -93,6 +231,58 @@ Los **archivos .ads** y **.adb** son fundamentales en Ada para la estructura de 
 
 - **.ads (specification):** Define la interfaz pública del paquete, es decir, qué tipos y operaciones están disponibles para los demás módulos del sistema.
 - **.adb (body):** Contiene la implementación real de los procedimientos y funciones declarados en la especificación.
+
+Ejemplo especificacion:
+
+```ada
+-- mi_paquete.ads
+package Mi_Paquete is
+   -- Declaración de un tipo
+   type Contador is private;
+
+   -- Procedimiento para inicializar el contador
+   procedure Inicializar(Cont : in out Contador; Valor_Inicial : in Integer);
+
+   -- Procedimiento para incrementar el contador
+   procedure Incrementar(Cont : in out Contador);
+
+   -- Función para obtener el valor actual del contador
+   function Obtener_Valor(Cont : in Contador) return Integer;
+
+private
+   -- Definición interna del tipo
+   type Contador is record
+      Valor : Integer;
+   end record;
+
+end Mi_Paquete;
+```
+Ejemplo de implementacion:
+
+```ada
+-- mi_paquete.adb
+package body Mi_Paquete is
+
+   -- Implementación del procedimiento Inicializar
+   procedure Inicializar(Cont : in out Contador; Valor_Inicial : in Integer) is
+   begin
+      Cont.Valor := Valor_Inicial;
+   end Inicializar;
+
+   -- Implementación del procedimiento Incrementar
+   procedure Incrementar(Cont : in out Contador) is
+   begin
+      Cont.Valor := Cont.Valor + 1;
+   end Incrementar;
+
+   -- Implementación de la función Obtener_Valor
+   function Obtener_Valor(Cont : in Contador) return Integer is
+   begin
+      return Cont.Valor;
+   end Obtener_Valor;
+
+end Mi_Paquete;
+```
 
 ### ¿Por qué es tan seguro Ada?
 
