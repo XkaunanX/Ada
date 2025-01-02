@@ -225,14 +225,28 @@ Ada utiliza el concepto de **paquetes** (packages) para organizar el código. Lo
 - **Modularización:** Los paquetes permiten dividir el código en unidades lógicas y manejables.
 - **Interfaz clara:** La separación entre la especificación y la implementación en los paquetes mejora la comprensión y reutilización del código.
 
-### Archivos .ads y .adb
+# Archivos .ads y .adb en Ada
 
-Los **archivos .ads** y **.adb** son fundamentales en Ada para la estructura de los paquetes:
+Los **archivos .ads** y **.adb** son fundamentales en Ada para la estructura de los paquetes. Ambos archivos deben tener el mismo nombre para garantizar que estén correctamente vinculados y el compilador pueda asociarlos. A continuación se detalla la función de cada uno:
 
-- **.ads (specification):** Define la interfaz pública del paquete, es decir, qué tipos y operaciones están disponibles para los demás módulos del sistema.
-- **.adb (body):** Contiene la implementación real de los procedimientos y funciones declarados en la especificación.
+## .ads (Specification)
+El archivo **.ads** es la especificación o interfaz pública de un paquete. Su propósito principal es definir:
+- **Tipos** que serán utilizados en el paquete.
+- **Procedimientos y funciones** disponibles para otros módulos del sistema.
+  
+En este archivo solo se definen las firmas o declaraciones de los procedimientos y funciones, sin incluir su implementación. Es el contrato que establece qué operaciones pueden ser invocadas desde otros módulos.
 
-Ejemplo especificacion:
+## .adb (Body)
+El archivo **.adb** es el cuerpo del paquete, donde se implementan las operaciones definidas en la especificación `.ads`. En este archivo se describe cómo se llevan a cabo las tareas especificadas en el archivo `.ads`.
+
+Este archivo contiene el código real que realiza las operaciones definidas en la especificación, como la implementación de funciones y procedimientos.
+
+### Importante:
+- **Coincidencia de nombres:** Ambos archivos deben tener el mismo nombre base para ser correctamente emparejados por el compilador. Por ejemplo:
+  - Especificación: `Mi_Paquete.ads`
+  - Implementación: `Mi_Paquete.adb`
+  - 
+Ejemplo especificacion .ads:
 
 ```ada
 -- mi_paquete.ads
@@ -257,7 +271,7 @@ private
 
 end Mi_Paquete;
 ```
-Ejemplo de implementacion:
+Ejemplo de implementacion .adb:
 
 ```ada
 -- mi_paquete.adb
@@ -310,6 +324,107 @@ Ada divide los archivos de código en dos partes:
 
 - **Especificación (cabecera):** Define los tipos, procedimientos y funciones que estarán disponibles para otros módulos.
 - **Cuerpo (implementación):** Contiene el código real que implementa las funcionalidades descritas en la especificación.
+
+Estructura de la especificacion del paquete .ads:
+
+```ada
+-- mi_paquete.ads
+-- Especificación del paquete Mi_Paquete
+-- Este archivo contiene la declaración de tipos, procedimientos y funciones
+-- que serán accesibles desde otros módulos del programa.
+
+package Mi_Paquete is
+
+   -- Sección de Importaciones
+   -- Aquí se pueden incluir otros paquetes si se necesitan, por ejemplo:
+   -- with Ada.Text_IO; -- Para trabajar con entrada y salida
+
+   -- Sección de Tipos
+   -- En esta sección se definen los tipos de datos que estarán disponibles
+   type Contador is private;
+
+   -- Sección de Procedimientos
+   -- Aquí se declaran los procedimientos que estarán disponibles para los usuarios del paquete.
+   procedure Inicializar(Cont : in out Contador; Valor_Inicial : in Integer);
+   procedure Incrementar(Cont : in out Contador);
+
+   -- Sección de Funciones
+   -- Aquí se declaran las funciones que estarán disponibles para los usuarios del paquete.
+   function Obtener_Valor(Cont : in Contador) return Integer;
+
+private
+   -- Sección Privada
+   -- En esta parte se define cómo se implementarán los tipos, y solo será accesible
+   -- dentro del paquete y no por los usuarios del paquete.
+   type Contador is record
+      Valor : Integer;
+   end record;
+
+end Mi_Paquete;
+```
+
+Estructura de la implementacion del paquete .ads:
+
+```ada
+-- mi_paquete.adb
+-- Cuerpo del paquete Mi_Paquete
+-- Este archivo contiene la implementación de los procedimientos y funciones
+-- que fueron declarados en la especificación.
+
+package body Mi_Paquete is
+
+   -- Sección de Variables Locales
+   -- Aquí se pueden declarar variables temporales, pero generalmente las
+   -- variables locales se declaran directamente dentro de los procedimientos y funciones.
+
+   -- Implementación del procedimiento Inicializar
+   procedure Inicializar(Cont : in out Contador; Valor_Inicial : in Integer) is
+   begin
+      Cont.Valor := Valor_Inicial;
+   end Inicializar;
+
+   -- Implementación del procedimiento Incrementar
+   procedure Incrementar(Cont : in out Contador) is
+   begin
+      Cont.Valor := Cont.Valor + 1;
+   end Incrementar;
+
+   -- Implementación de la función Obtener_Valor
+   function Obtener_Valor(Cont : in Contador) return Integer is
+   begin
+      return Cont.Valor;
+   end Obtener_Valor;
+
+end Mi_Paquete;
+```
+
+Estructura del archivo principal .adb: 
+
+```ada
+-- principal.adb
+-- Este es el archivo principal que usa el paquete Mi_Paquete
+-- Para utilizar el paquete, se debe "conocer" el paquete e invocar sus procedimientos y funciones.
+
+with Mi_Paquete;    -- Importamos el paquete Mi_Paquete
+use Mi_Paquete;     -- Hacemos uso de las funciones y procedimientos del paquete
+
+procedure Principal is
+   Mi_Contador : Contador;    -- Variable que usará el tipo Contador definido en el paquete
+   Valor_Actual : Integer;    -- Variable para almacenar el valor del contador
+begin
+   -- Inicializamos el contador con el valor 10
+   Inicializar(Mi_Contador, 10);
+
+   -- Incrementamos el contador
+   Incrementar(Mi_Contador);
+
+   -- Obtenemos el valor actual del contador
+   Valor_Actual := Obtener_Valor(Mi_Contador);
+
+   -- Imprimimos el valor actual
+   Ada.Text_IO.Put_Line("El valor del contador es: " & Integer'Image(Valor_Actual));
+end Principal;
+```
 
 ### Cómo funcionó el IO en Ada
 
